@@ -139,7 +139,38 @@ static void *worker(void *arg) {
 
         int n = read_req(fd, buf);
         float tInicio = now_ms();
-        if (n > 0 && strncmp(buf, "POST /fraud-score", 17) == 0) {
+        if (n > 0 && strncmp(buf, "GET /ready", 10) == 0)
+        {
+            const char *res;
+            int http_code;
+
+            if (g_ready)
+            {
+                res = "OK";
+                http_code = 200;
+            }
+            else
+            {
+                res = "NOT_READY";
+                http_code = 503;
+            }
+
+            char resp[256];
+            int len = snprintf(resp, sizeof(resp),
+                               "HTTP/1.1 %d %s\r\n"
+                               "Content-Type: text/plain\r\n"
+                               "Content-Length: %lu\r\n"
+                               "Connection: close\r\n"
+                               "\r\n"
+                               "%s",
+                               http_code,
+                               g_ready ? "OK" : "Service Unavailable",
+                               strlen(res),
+                               res);
+
+            send_all(fd, resp, len);
+        }
+        else if (n > 0 && strncmp(buf, "POST /fraud-score", 17) == 0) {
 
             char *body = strstr(buf, "\r\n\r\n");
             if (body) {
@@ -167,15 +198,41 @@ static void *worker(void *arg) {
         close(fd);
     }
 }
+void *init_thread(void *arg)
+{
+    fprintf(stderr, "Carregando dados...\n");
 
+    
+
+    load_data();
+
+    q_init();
+
+    g_ready = 1;
+
+    fprintf(stderr, "READY!\n");
+
+    return NULL;
+}
 /* ================= MAIN ================= */
 
 int main() {
     fprintf(stderr,"=== INICIANDO SERVIDOR ===\n");
     
     signal(SIGPIPE, SIG_IGN);
+    
+    vectorizer_init(&g_vectorizer,
+        "resources/normalization.json",
+        "resources/mcc_risk.json");
 
-    fprintf(stderr, "Carregando dados\n");
+    g_ready = 0;
+
+    pthread_t init;
+
+    pthread_create(&init, NULL, init_thread, NULL);
+    pthread_detach(init);
+
+    /*fprintf(stderr, "Carregando dados\n");
 fflush(stderr);
 
     vectorizer_init(&g_vectorizer,
@@ -187,7 +244,7 @@ fflush(stderr);
     
     
 
-    g_ready = 1;
+    g_ready = 1;*/
     q_init();
 
     pthread_t t[WORKERS];
