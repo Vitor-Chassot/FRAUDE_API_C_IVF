@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+
+  nginx:
+    image: nginx:alpine
+    container_name: rinha-nginx
+
+    ports:
+      - "9999:9999"
+
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+
+    depends_on:
+      - api1
+      - api2
+
+    deploy:
+      resources:
+        limits:
+          cpus: "0.30"
+          memory: "7 MB"
+
+  api1:
+    image: vitorchassot/rinha-2026:latest
+    container_name: rinha-api1
+
+    deploy:
+      resources:
+        limits:
+          cpus: "0.35"
+          memory: "172MB"
+
+  api2:
+    image: vitorchassot/rinha-2026:latest
+    container_name: rinha-api2
+
+    deploy:
+      resources:
+        limits:
+          cpus: "0.35"
+          memory: "171MB"
