@@ -3,7 +3,7 @@ version: "3.9"
 services:
 
   load_balancer:
-    image: vitorchassot/rinha-2026:latest
+    image: vitorchassot/rinha-2026:v2
     container_name: rinha-lb
 
 
@@ -24,7 +24,7 @@ services:
 
 
   api1:
-    image: vitorchassot/rinha-2026:latest
+    image: vitorchassot/rinha-2026:v2
     container_name: rinha-api1
 
 
@@ -36,7 +36,7 @@ services:
 
 
   api2:
-    image: vitorchassot/rinha-2026:latest
+    image: vitorchassot/rinha-2026:v2
     container_name: rinha-api2
 
 
