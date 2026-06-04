@@ -21,7 +21,7 @@ services:
       resources:
         limits:
           cpus: "0.20"
-          memory: "5MB"
+          memory: "6MB"
     ulimits:
       nofile:
         soft: 65535
@@ -38,7 +38,7 @@ services:
       resources:
         limits:
           cpus: "0.40"
-          memory: "173MB"
+          memory: "172MB"
     ulimits:
       nofile:
         soft: 65535
